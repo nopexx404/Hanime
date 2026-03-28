@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete all</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        .card { box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); }
+        .green-btn { box-shadow: 0 10px 15px -3px rgb(16 185 129); }
+    </style>
+</head>
+<body class="bg-[#f8f9fa] flex items-center justify-center min-h-screen p-4">
+    <div class="max-w-[380px] w-full bg-white rounded-3xl card p-8">
+        <h1 class="text-4xl font-bold text-center tracking-tighter">Complete all</h1>
+        <p class="text-center text-gray-500 mt-3 text-[17px]">See an ad → return here until all is complete!</p>
+        
+        <div id="task-list" class="mt-10 space-y-4"></div>
+        
+        <div class="mt-10">
+            <p class="text-center text-gray-500 text-sm font-semibold">Unlock Progress <span id="progress-text" class="font-bold text-black">0/3</span></p>
+            <div class="mt-3 h-2.5 bg-gray-200 rounded-3xl overflow-hidden">
+                <div id="progress-fill" class="h-2.5 bg-emerald-500 rounded-3xl w-0 transition-all duration-500"></div>
+            </div>
+        </div>
+        
+        <button id="unlock-btn"
+                class="mt-8 w-full flex items-center justify-between bg-gray-200 text-gray-400 rounded-3xl px-6 py-5 text-lg font-semibold cursor-not-allowed">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">🔒</span>
+                <span>Click here once finished to get all videos</span>
+            </div>
+            <span class="text-3xl leading-none">›</span>
+        </button>
+    </div>
+
+    <script>
+        let taskStates = [false, false, false];     // completed?
+        let processing = [false, false, false];
+        let completedCount = 0;
+
+        function renderTasks() {
+            const container = document.getElementById('task-list');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 3; i++) {
+                const isDone = taskStates[i];
+                const isProc = processing[i];
+                
+                const btnHTML = `
+                <div onclick="\( {(!isDone && !isProc) ? `handleClick( \){i})` : ''}" 
+                     class="flex items-center px-5 py-4 rounded-3xl text-white font-medium text-[17px] transition-all 
+                     ${isDone ? 'bg-emerald-600 cursor-default' : isProc ? 'bg-emerald-400 cursor-wait' : 'bg-[#10b981] hover:bg-emerald-600 active:scale-[0.97] green-btn'}">
+                    
+                    ${isDone 
+                        ? `<div class="flex-shrink-0 w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-inner"><span class="text-emerald-500 text-3xl">✓</span></div>`
+                        : `<div class="flex-shrink-0 w-9 h-9 bg-white rounded-full shadow-inner"></div>`
+                    }
+                    
+                    <span class="flex-1 text-left ml-4">
+                        ${isDone ? 'Completed!' : isProc ? 'Waiting 10s...' : 'Click, wait 10s, then return'}
+                    </span>
+                    <span class="text-4xl opacity-80">›</span>
+                </div>`;
+                
+                container.innerHTML += btnHTML;
+            }
+        }
+
+        window.handleClick = function(index) {
+            if (taskStates[index] || processing[index]) return;
+            
+            processing[index] = true;
+            renderTasks();
+            
+            // Tự động mở Google
+            window.open('https://www.google.com', '_blank');
+            
+            setTimeout(() => {
+                processing[index] = false;
+                
+                if (Math.random() < 0.85) {                    // 85% success
+                    taskStates[index] = true;
+                    completedCount++;
+                    document.getElementById('progress-text').innerHTML = `${completedCount}/3`;
+                    document.getElementById('progress-fill').style.width = `${(completedCount / 3) * 100}%`;
+                    
+                    if (completedCount === 3) unlockFinalButton();
+                } else {
+                    alert('❌ Thất bại! Tỉ lệ 15%. Hãy click lại nút này.');
+                }
+                
+                renderTasks();
+            }, 10000);
+        };
+
+        function unlockFinalButton() {
+            const btn = document.getElementById('unlock-btn');
+            btn.classList.remove('bg-gray-200', 'text-gray-400', 'cursor-not-allowed');
+            btn.classList.add('bg-[#10b981]', 'text-white', 'hover:bg-emerald-600', 'active:scale-95', 'green-btn');
+            
+            btn.innerHTML = `
+                <div class="flex items-center justify-between w-full">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl"></span>
+                        <span>Click here once finished to get all videos</span>
+                    </div>
+                    <span class="text-3xl">›</span>
+                </div>`;
+            
+            btn.addEventListener('click', () => {
+                window.location.href = "https://skibidi.com";
+            });
+        }
+
+        // Khởi tạo
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTasks();
+        });
+    </script>
+</body>
+</html>
